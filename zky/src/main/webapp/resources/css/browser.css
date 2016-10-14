@@ -1,0 +1,112 @@
+/* css for broswer update page 
+ * @author WuJF
+*/
+
+*{
+	margin:0;
+	padding:0;
+}
+body{
+	font-family: 'helvetica neue',tahoma,'hiragino sans gb',stheiti,'wenquanyi micro hei',\5FAE\8F6F\96C5\9ED1,\5B8B\4F53,sans-serif;
+}
+.header{
+	height:70px;
+	background-color: #EEEEEE;
+	border-bottom: 1px dashed #AAAAAA;
+	padding: 0 50px;
+}
+.header h1{
+	line-height: 70px;text-align:center;
+}
+.header img{
+	width:60px;
+	height: 60px;
+	float: left;
+	margin: 5px
+}
+
+.content{
+	width: 960px;
+	margin: auto;
+	margin-top: 10px;
+	overflow: hidden;
+}
+
+.browser{
+	display: block;
+	padding: 5px 20px 15px;
+	border-bottom: 1px dashed #CCC;
+	*zoom:1;
+	overflow: hidden;
+}
+
+.browser .logo{
+	width: 110px;
+	margin: 10px;
+}
+.browser:hover .logo{
+	width: 114px;
+	margin: 8px;
+}
+.browser .left{
+	width: 180px;
+	float: left;
+	text-align: center;
+}
+.browser .website{
+	display: block;
+	font-weight: 300;
+	color: #E25600;
+	font-size: 19px;
+}
+.browser .right{
+	margin-left: 183px;
+}
+
+.browser .desc{
+	padding: 10px 0 10px 0;
+}
+.browser .downloads{
+
+}
+.desc p{
+	text-indent: 2em;
+}
+.alert{
+	background-color: #FFF4F4;
+	border: 1px solid #F7C6B7;
+	padding: 20px;
+}
+.alert h2{
+	text-align: center;
+}
+.desc h3{
+	color:#09c;
+}
+.desc h3:before{
+	content:"";
+	display: none;
+}
+.downloads h3{
+	color:#09c;
+}
+table.links{
+	border-collapse: collapse;
+	width: 100%;
+	margin: 10px auto;
+	border: 2px solid #333;
+}
+table.links th,
+table.links td{
+	border:1px solid #888;
+	text-align: center;
+}
+table.links th{
+	font-style: bold;
+}
+
+.links a{
+	padding-left: 14px;
+	background: url(img/down.jpg) 0 50% no-repeat;
+	text-decoration: none;
+}

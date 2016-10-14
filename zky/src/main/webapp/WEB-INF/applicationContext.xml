@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jaxws=" http://cxf.apache.org/jaxws"
+	xmlns:jaxrs=" http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation=" 
+          http://www.springframework.org/schema/beans 
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+          http://www.springframework.org/schema/task
+          http://www.springframework.org/schema/task/spring-task-3.0.xsd
+          http://www.springframework.org/schema/context 
+          http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+          http://www.springframework.org/schema/aop 
+          http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+          http://www.springframework.org/schema/mvc
+          http://www.springframework.org/schema/mvc/spring-mvc.xsd
+          http://www.springframework.org/schema/cache
+          http://www.springframework.org/schema/cache/spring-cache.xsd
+          http://www.springframework.org/schema/tx 
+          http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+          http://cxf.apache.org/jaxws
+          http://cxf.apache.org/schemas/jaxws.xsd
+          http://cxf.apache.org/jaxrs
+          http://cxf.apache.org/schemas/jaxrs.xsd">
+
+
+	<!-- 使用Spring组件扫描的方式来实现自动注入bean -->
+	<context:component-scan base-package="nju.software.zky.*" />
+	<!-- 隐式地向 Spring 容器注册 -->
+	<context:annotation-config />
+	<cache:annotation-driven cache-manager="cacheManager" />
+
+	<bean id="cacheManagerFactory"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="WEB-INF/ehcache.xml" />
+	</bean>
+
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager" ref="cacheManagerFactory" />
+	</bean>
+
+	<!-- 读取配置属性：菜单、角色权限 -->
+	<bean id="propertiesReader"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+
+	<!-- mysql -->
+	<bean name="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url"
+			value="jdbc:mysql://139.196.152.15:3306/zky?useUnicode=true&amp;characterEncoding=UTF-8" />
+		<property name="username" value="root" />
+		<property name="password" value="123456" />
+	</bean>
+	<!-- mysql session工厂 -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+			</props>
+		</property>
+		<!-- 自动扫描注解方式配置的hibernate类文件 -->
+		<property name="packagesToScan">
+			<list>
+				<value>nju.software.zky.data.dataobject</value>
+			</list>
+		</property>
+	</bean>
+		<!-- mysql配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!-- mysql配置事务通知属性 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<!-- 定义事务传播属性 -->
+		<tx:attributes>
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="create*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="confirm*" propagation="REQUIRED" />
+			<tx:method name="edit*" propagation="REQUIRED" />
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="new*" propagation="REQUIRED" />
+			<tx:method name="set*" propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+			<tx:method name="change*" propagation="REQUIRED" />
+			<tx:method name="get*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="find*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="load*" propagation="REQUIRED" read-only="true" />
+			<tx:method name="*" propagation="REQUIRED" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- mysql配置事务切面 -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="serviceOperation"
+			expression="execution(* nju.software.zky.service.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="serviceOperation" />
+	</aop:config>
+	
+
+	<!-- <bean id="adminServiceAspect" class="edu.cn.advice.AdminServiceAspect"></bean> 
+		<aop:config> <aop:aspect id="adminServiceAspect" ref="adminServiceAspect"> 
+		<aop:pointcut expression="execution(* edu.cn.service.*.*(..))" id="businessService"/> 
+		<aop:before method="doBefore" pointcut-ref="businessService"/> <aop:after 
+		method="doAfter" pointcut-ref="businessService"/> </aop:aspect> </aop:config> -->
+
+	<aop:aspectj-autoproxy />
+	<!-- <bean id="adminServiceAspect" class="edu.cn.advice.AdminServiceAspect2"></bean> -->
+	<!-- 自动加载构建bean -->
+	<context:component-scan base-package="nju.software.zky" />
+
+	<!-- 拦截器 -->
+	<!-- <bean id="DataBaseInterceptor" class="nju.software.bigdata.web.filter.DataBaseInterceptor"> 
+		</bean> <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"> 
+		<property name="interceptors"> <list> <ref bean="DataBaseInterceptor" /> 
+		</list> </property> </bean> -->
+
+</beans>
